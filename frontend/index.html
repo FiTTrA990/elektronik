@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Katalog Elektronik Tech</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 40px 20px;
+            background-color: #f0f2f5;
+        }
+        .container {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            max-width: 650px;
+            margin: auto;
+        }
+        h1 {
+            color: #1a73e8;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .identity-box {
+            background: #e8f0fe;
+            border-left: 5px solid #1a73e8;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 25px;
+            font-size: 15px;
+        }
+        .identity-box p {
+            margin: 5px 0;
+        }
+        .catalog-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        .catalog-list li {
+            background: #ffffff;
+            border: 1px solid #dadce0;
+            margin: 8px 0;
+            padding: 12px 15px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            font-weight: 500;
+        }
+        .catalog-list li::before {
+            content: "💻";
+            margin-right: 10px;
+            font-size: 18px;
+        }
+        .add-form {
+            margin-top: 25px;
+            display: flex;
+            gap: 10px;
+        }
+        .add-form input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 15px;
+        }
+        .add-form button {
+            padding: 12px 20px;
+            background: #1a73e8;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+        .add-form button:hover {
+            background: #1557b0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Katalog Elektronik Tech</h1>
+
+        <div class="identity-box" id="identity-box">
+            <p><strong>Nama Pemilik:</strong> <span id="nama-mhs">Memuat...</span></p>
+            <p><strong>NIM:</strong> <span id="nim-mhs">Memuat...</span></p>
+            <p><strong>Dilayani oleh Pod:</strong> <span id="served-by">Memuat...</span></p>
+        </div>
+
+        <h3>Daftar Produk Tersedia</h3>
+        <ul class="catalog-list" id="catalog-list">
+            <li>Memuat data dari server...</li>
+        </ul>
+
+        <div class="add-form">
+            <input type="text" id="new-product" placeholder="Masukkan nama produk baru (misal: Mouse Wireless)">
+            <button onclick="addProduct()">Tambah Produk</button>
+        </div>
+    </div>
+
+    <script>
+        // IMPLEMENTASI RELATIVE PATH SESUAI SYARAT TUGAS PRAKTIKUM 2
+        // Tidak ada IP atau Port, routing akan diatur oleh Ingress Controller
+        const API_URL = '/api';
+
+        // Fungsi untuk mengambil data dari backend
+        async function fetchInfo() {
+            try {
+                // Mengambil data dari endpoint GET /api/info
+                const response = await fetch(`${API_URL}/info`);
+                
+                if (!response.ok) throw new Error('Network response was not ok');
+                
+                const data = await response.json();
+
+                // Menampilkan hasil Identity Injection ke dalam HTML
+                document.getElementById('nama-mhs').innerText = data.pemilik.nama;
+                document.getElementById('nim-mhs').innerText = data.pemilik.nim;
+                document.getElementById('served-by').innerText = data.served_by;
+
+                // Menampilkan daftar katalog elektronik
+                const catalogList = document.getElementById('catalog-list');
+                catalogList.innerHTML = '';
+                data.katalog.forEach(item => {
+                    const li = document.createElement('li');
+                    li.innerText = item;
+                    catalogList.appendChild(li);
+                });
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                document.getElementById('catalog-list').innerHTML = '<li style="color: red;">Gagal memuat data. Pastikan Backend dan Ingress Controller berjalan.</li>';
+            }
+        }
+
+        // Fungsi untuk menambah produk baru
+        async function addProduct() {
+            const productInput = document.getElementById('new-product');
+            const newItem = productInput.value.trim();
+
+            if (!newItem) {
+                alert('Nama produk tidak boleh kosong!');
+                return;
+            }
+
+            try {
+                // Mengirim data ke endpoint POST /api/add-product
+                const response = await fetch(`${API_URL}/add-product`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ item: newItem })
+                });
+
+                if (response.ok) {
+                    productInput.value = ''; // Kosongkan input
+                    fetchInfo(); // Refresh daftar otomatis setelah berhasil
+                } else {
+                    alert('Gagal menambah produk.');
+                }
+            } catch (error) {
+                console.error('Error adding product:', error);
+                alert('Terjadi kesalahan saat menghubungi server.');
+            }
+        }
+
+        // Jalankan fungsi fetchInfo otomatis saat halaman web pertama kali dibuka
+        window.onload = fetchInfo;
+    </script>
+</body>
+</html>
