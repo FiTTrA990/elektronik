@@ -4,7 +4,7 @@ pipeline {
 
     environment {
         // Ganti dengan username Docker Hub yang sesuai
-        DOCKER_HUB_USER = 'fira009'
+        DOCKER_HUB_USER = 'fitra009'
         // ID kredensial yang dibuat di 'Add Credentials' tadi
         DOCKER_HUB_ID   = 'dockerhub-login'
         // URL repo GitHub aplikasi
