@@ -18,6 +18,11 @@ spec:
         imagePullPolicy: Always
         ports:
         - containerPort: 5000
+        env:
+        - name: NAMA_PEMILIK
+          value: "Fitra"      # Ganti dengan nama kamu
+        - name: NIM_PEMILIK
+          value: "2411481"
         # --- TAMBAHAN MODUL 2 ---
         resources:
           limits:
