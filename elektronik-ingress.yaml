@@ -3,6 +3,7 @@ kind: Ingress
 metadata:
   name: elektronik-ingress
 spec:
+  ingressClassName: nginx
   rules:
   - http:
       paths:
